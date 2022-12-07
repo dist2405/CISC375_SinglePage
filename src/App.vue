@@ -1,5 +1,7 @@
 <script>
 import $ from 'jquery'
+import About from './components/about.vue';
+import Search_results from './components/search_results.vue';
 
 export default {
     data() {
@@ -108,11 +110,20 @@ export default {
         }).catch((error) => {
             console.log('Error:', error);
         });
-    }
+    },
+    onEachFeature(feature, layer) {
+      if (feature.properties && feature.properties.name) {
+        layer.bindPopup(feature.properties.name);
+    layer.on('mouseover', () => { layer.openPopup(); });
+        layer.on('mouseout', () => { layer.closePopup(); });
+      }
+   },
+
 }
 </script>
 
 <template>
+  
     <div class="grid-container">
         <div class="grid-x grid-padding-x">
             <p :class="'cell small-4 ' + ((view === 'map') ? 'selected' : 'unselected')" @click="viewMap">Map</p>
@@ -125,14 +136,26 @@ export default {
             <div class="grid-x grid-padding-x">
                 <div id="leafletmap" class="cell auto"></div>
             </div>
+            <div class="grid-x grid-padding-x">
+            <input id="search" class="cell small-4" type="text" v-model="map_search" :placeholder="input_placeholder" />
+            <select id="type" class ="cell small-4" v-model="search_type">
+                <option>Lat Long</option>
+                <option> Address</option>
+            </select>
+            <button type="button" @click="mapSearch">Search</button>
+        
+            <SearchResult :result_array="search_results" />
+        </div>
         </div>
     </div>
     <div v-if="view === 'new_incident'">
         <!-- Replace this with your actual form: can be done here or by making a new component -->
+
         <div class="grid-container">
             <div class="grid-x grid-padding-x">
                 <h1 class="cell auto">New Incident Form</h1>
             </div>
+            <SearchResult :result_array="new_incidentsVue" />
         </div>
     </div>
     <div v-if="view === 'about'">
@@ -141,6 +164,8 @@ export default {
             <div class="grid-x grid-padding-x">
                 <h1 class="cell auto">About the Project</h1>
             </div>
+            <SearchResult :result_array="About" />
+         
         </div>
     </div>
 </template>
