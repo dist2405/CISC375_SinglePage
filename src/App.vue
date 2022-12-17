@@ -1,6 +1,5 @@
 <script>
 import $ from 'jquery'
-import aboutproject from './components/about.vue'
 
 export default {
 
