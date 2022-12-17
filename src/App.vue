@@ -174,10 +174,11 @@ export default {
                 <div v-if="viewChoice === 'AboutUs'">
                         
                     
-                     
-                        <p :class="'cell small-6 ' + ((viewSub === 'Andrew') ? 'selected' : 'unselected')" @click="viewAndrew">Andrew</p>
-                        <p :class="'cell small-6 ' + ((viewSub === 'Angie') ? 'selected' : 'unselected')" @click="viewAngie">Angie</p>
-                        <p :class="'cell small-6 ' + ((viewSub === 'Jordan') ? 'selected' : 'unselected')" @click="viewJordan">Jordan</p>
+                    <div class="grid-x grid-padding-x">
+                        <p :class="'cell small-4 ' + ((viewSub === 'Andrew') ? 'selected' : 'unselected')" @click="viewAndrew">Andrew</p>
+                        <p :class="'cell small-4 ' + ((viewSub === 'Angie') ? 'selected' : 'unselected')" @click="viewAngie">Angie</p>
+                        <p :class="'cell small-4 ' + ((viewSub === 'Jordan') ? 'selected' : 'unselected')" @click="viewJordan">Jordan</p>
+                    </div>   
                         <div v-if="viewSub === 'Andrew'">
                             <h1>Andrew</h1>
                         </div>
@@ -190,9 +191,11 @@ export default {
                     </div>
                 
                 <div v-if="viewChoice === 'AboutProject'">
+                    <div class="grid-x grid-padding-x">
                         <p :class="'cell small-4 ' + ((viewSub === 'Tools') ? 'selected' : 'unselected')" @click="viewTools">Tools Used</p>
                         <p :class="'cell small-4 ' + ((viewSub === 'Interesting') ? 'selected' : 'unselected')" @click="viewInteresting">Interesting Facts</p>
                         <p :class="'cell small-4  ' + ((viewSub === 'Video') ? 'selected' : 'unselected')" @click="viewVideo">Video</p>
+                    </div>    
                         <div v-if="viewSub === 'Tools'">
                             <h1 class="'cell auto'">Tools Used</h1>
                             <ol>
