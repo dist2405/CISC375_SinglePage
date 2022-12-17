@@ -1,12 +1,14 @@
 <script>
 import $ from 'jquery'
-import About from './components/about.vue';
-import Search_results from './components/search_results.vue';
+import aboutproject from './components/about.vue'
 
 export default {
+
     data() {
         return {
             view: 'map',
+            viewSub:'',
+            viewChoice:'',
             codes: [],
             neighborhoods: [],
             incidents: [],
@@ -56,6 +58,31 @@ export default {
         viewAbout(event) {
             this.view = 'about';
         },
+        viewAndrew(event){
+            this.viewSub = 'Andrew';
+        },
+        viewAngie(event){
+            this.viewSub = 'Angie';
+        },
+        viewJordan(event){
+            this.viewSub = 'Jordan';
+        },
+        viewUs(event){
+            this.viewChoice = 'AboutUs';
+        },
+        viewProject(event){
+            this.viewChoice = 'AboutProject';
+        },
+        viewInteresting(event){
+            this.viewSub = 'Interesting';
+        },
+        viewVideo(event){
+            this.viewSub = 'Video';
+        },
+        viewTools(event){
+            this.viewSub = 'Tools';
+        },
+        
 
         getJSON(url) {
             return new Promise((resolve, reject) => {
@@ -110,20 +137,12 @@ export default {
         }).catch((error) => {
             console.log('Error:', error);
         });
-    },
-    onEachFeature(feature, layer) {
-      if (feature.properties && feature.properties.name) {
-        layer.bindPopup(feature.properties.name);
-    layer.on('mouseover', () => { layer.openPopup(); });
-        layer.on('mouseout', () => { layer.closePopup(); });
-      }
-   },
-
+    }
 }
+ 
 </script>
 
 <template>
-  
     <div class="grid-container">
         <div class="grid-x grid-padding-x">
             <p :class="'cell small-4 ' + ((view === 'map') ? 'selected' : 'unselected')" @click="viewMap">Map</p>
@@ -136,38 +155,60 @@ export default {
             <div class="grid-x grid-padding-x">
                 <div id="leafletmap" class="cell auto"></div>
             </div>
-            <div class="grid-x grid-padding-x">
-            <input id="search" class="cell small-4" type="text" v-model="map_search" :placeholder="input_placeholder" />
-            <select id="type" class ="cell small-4" v-model="search_type">
-                <option>Lat Long</option>
-                <option> Address</option>
-            </select>
-            <button type="button" @click="mapSearch">Search</button>
-        
-            <SearchResult :result_array="search_results" />
-        </div>
         </div>
     </div>
     <div v-if="view === 'new_incident'">
         <!-- Replace this with your actual form: can be done here or by making a new component -->
-
         <div class="grid-container">
             <div class="grid-x grid-padding-x">
                 <h1 class="cell auto">New Incident Form</h1>
             </div>
-            <SearchResult :result_array="new_incidentsVue" />
         </div>
     </div>
     <div v-if="view === 'about'">
         <!-- Replace this with your actual about the project content: can be done here or by making a new component -->
         <div class="grid-container">
             <div class="grid-x grid-padding-x">
-                <h1 class="cell auto">About the Project</h1>
+                <p :class="'cell small-6 ' + ((viewChoice === 'AboutUs') ? 'selected' : 'unselected')" @click="viewUs"> About Us</p>
+                <p :class="'cell small-6 ' + ((viewChoice === 'AboutProject') ? 'selected' : 'unselected')" @click="viewProject"> About The Project</p>
+                <div v-if="viewChoice === 'AboutUs'">
+                    
+                     
+                        <p :class="'cell small-4 ' + ((viewSub === 'Andrew') ? 'selected' : 'unselected')" @click="viewAndrew">Andrew</p>
+                        <p :class="'cell small-4 ' + ((viewSub === 'Angie') ? 'selected' : 'unselected')" @click="viewAngie">Angie</p>
+                        <p :class="'cell small-4 ' + ((viewSub === 'Jordan') ? 'selected' : 'unselected')" @click="viewJordan">Jordan</p>
+                    
+                        <div v-if="viewSub === 'Andrew'">
+                            <h1>Andrew</h1>
+                        </div>
+                        <div v-if="viewSub === 'Angie'">
+                            <h1>Angie</h1>
+                        </div>
+                        <div v-if="viewSub === 'Jordan'">
+                            <h1>Jordan</h1>
+                        </div>
+                    </div>
+                
+                <div v-if="viewChoice === 'AboutProject'">
+                        <p :class="'cell small-4 ' + ((viewSub === 'Tools') ? 'selected' : 'unselected')" @click="viewTools">Tools Used</p>
+                        <p :class="'cell small-4 ' + ((viewSub === 'Interesting') ? 'selected' : 'unselected')" @click="viewInteresting">Interesting Facts</p>
+                        <p :class="'cell small-4 ' + ((viewSub === 'Video') ? 'selected' : 'unselected')" @click="viewVideo">Video</p>
+                        <div v-if="viewSub === 'Tools'">
+                            <h1>Tools Used</h1>
+                        </div>
+                        <div v-if="viewSub === 'Interesting'">
+                            <h1>Interesting Facts</h1>
+                        </div>
+                        <div v-if="viewSub === 'Video'">
+                            <h1>Video</h1>
+                        </div>
+                    
+                </div>
             </div>
-            <SearchResult :result_array="About" />
-         
         </div>
+
     </div>
+ 
 </template>
 
 <style>
@@ -188,5 +229,16 @@ export default {
     border: solid 1px white;
     text-align: center;
     cursor: pointer;
+}
+.button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
 }
 </style>
