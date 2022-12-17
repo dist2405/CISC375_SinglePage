@@ -170,13 +170,14 @@ export default {
             <div class="grid-x grid-padding-x">
                 <p :class="'cell small-6 ' + ((viewChoice === 'AboutUs') ? 'selected' : 'unselected')" @click="viewUs"> About Us</p>
                 <p :class="'cell small-6 ' + ((viewChoice === 'AboutProject') ? 'selected' : 'unselected')" @click="viewProject"> About The Project</p>
+                </div>
                 <div v-if="viewChoice === 'AboutUs'">
+                        
                     
                      
-                        <p :class="'cell small-4 ' + ((viewSub === 'Andrew') ? 'selected' : 'unselected')" @click="viewAndrew">Andrew</p>
-                        <p :class="'cell small-4 ' + ((viewSub === 'Angie') ? 'selected' : 'unselected')" @click="viewAngie">Angie</p>
-                        <p :class="'cell small-4 ' + ((viewSub === 'Jordan') ? 'selected' : 'unselected')" @click="viewJordan">Jordan</p>
-                    
+                        <p :class="'cell small-6 ' + ((viewSub === 'Andrew') ? 'selected' : 'unselected')" @click="viewAndrew">Andrew</p>
+                        <p :class="'cell small-6 ' + ((viewSub === 'Angie') ? 'selected' : 'unselected')" @click="viewAngie">Angie</p>
+                        <p :class="'cell small-6 ' + ((viewSub === 'Jordan') ? 'selected' : 'unselected')" @click="viewJordan">Jordan</p>
                         <div v-if="viewSub === 'Andrew'">
                             <h1>Andrew</h1>
                         </div>
@@ -191,22 +192,36 @@ export default {
                 <div v-if="viewChoice === 'AboutProject'">
                         <p :class="'cell small-4 ' + ((viewSub === 'Tools') ? 'selected' : 'unselected')" @click="viewTools">Tools Used</p>
                         <p :class="'cell small-4 ' + ((viewSub === 'Interesting') ? 'selected' : 'unselected')" @click="viewInteresting">Interesting Facts</p>
-                        <p :class="'cell small-4 ' + ((viewSub === 'Video') ? 'selected' : 'unselected')" @click="viewVideo">Video</p>
+                        <p :class="'cell small-4  ' + ((viewSub === 'Video') ? 'selected' : 'unselected')" @click="viewVideo">Video</p>
                         <div v-if="viewSub === 'Tools'">
-                            <h1>Tools Used</h1>
+                            <h1 class="'cell auto'">Tools Used</h1>
+                            <ol>
+                                <li>Vue</li>
+                                <li>Java Script</li>
+                                <li>Foundation</li>
+                                <li>Visual Studio Code</li>
+                                <li>Leaflet</li>
+                                <li>Nominatim</li>
+                                <li>SQL Lite</li>
+                            </ol>
                         </div>
                         <div v-if="viewSub === 'Interesting'">
-                            <h1>Interesting Facts</h1>
+                            <h1 class="cell auto">Interesting Facts</h1>
+                            
+                            <ol>
+                                <li>Creating sub views was fun.</li>
+                            </ol>           
+                               
                         </div>
                         <div v-if="viewSub === 'Video'">
-                            <h1>Video</h1>
+                            <h1 class="cell auto">Video</h1>
                         </div>
                     
                 </div>
             </div>
         </div>
 
-    </div>
+   
  
 </template>
 
@@ -240,4 +255,5 @@ export default {
   margin: 4px 2px;
   cursor: pointer;
 }
+
 </style>
