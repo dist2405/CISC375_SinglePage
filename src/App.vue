@@ -1,6 +1,7 @@
 <script>
 import $ from 'jquery'
 
+
 export default {
 
     data() {
@@ -81,6 +82,8 @@ export default {
         viewTools(event){
             this.viewSub = 'Tools';
         },
+
+
         
 
         getJSON(url) {
@@ -142,6 +145,8 @@ export default {
 </script>
 
 <template>
+      
+
     <div class="grid-container">
         <div class="grid-x grid-padding-x">
             <p :class="'cell small-4 ' + ((view === 'map') ? 'selected' : 'unselected')" @click="viewMap">Map</p>
@@ -150,6 +155,7 @@ export default {
         </div>
     </div>
     <div v-show="view === 'map'">
+        
         <div class="grid-container">
             <div class="grid-x grid-padding-x">
                 <div id="leafletmap" class="cell auto"></div>
@@ -165,14 +171,14 @@ export default {
         </div>
     </div>
     <div v-if="view === 'about'">
+        
         <!-- Replace this with your actual about the project content: can be done here or by making a new component -->
         <div class="grid-container">
             <div class="grid-x grid-padding-x">
                 <p :class="'cell small-6 ' + ((viewChoice === 'AboutUs') ? 'selected' : 'unselected')" @click="viewUs"> About Us</p>
                 <p :class="'cell small-6 ' + ((viewChoice === 'AboutProject') ? 'selected' : 'unselected')" @click="viewProject"> About The Project</p>
                 </div>
-                <div v-if="viewChoice === 'AboutUs'">
-                        
+                <div v-if="viewChoice === 'AboutUs'">  
                     
                     <div class="grid-x grid-padding-x">
                         <p :class="'cell small-4 ' + ((viewSub === 'Andrew') ? 'selected' : 'unselected')" @click="viewAndrew">Andrew</p>
@@ -180,13 +186,20 @@ export default {
                         <p :class="'cell small-4 ' + ((viewSub === 'Jordan') ? 'selected' : 'unselected')" @click="viewJordan">Jordan</p>
                     </div>   
                         <div v-if="viewSub === 'Andrew'">
-                            <h1>Andrew</h1>
+                            <h1>Andrew- I like computers</h1>
                         </div>
                         <div v-if="viewSub === 'Angie'">
-                            <h1>Angie</h1>
+                            <h1>Angie-I have the dog</h1>
+                            <center>
+                            <img src="./images/Angie.jpg" alt="Angie" class="'cell auto'" style="width:400px;height:300px;"> 
+                            </center>
+
+                            <h3> About Me</h3>
+                            <p1>Hi I'm Angie!  I am an Actuary Science Major and a Computer Science, Math and Math STAT minor, graduating in December of this year from St Thomas. 
+                            I am starting a job in Business Data Analytics in February.  In my free time, I like to camp, hike and spend time outdoors. </p1>
                         </div>
                         <div v-if="viewSub === 'Jordan'">
-                            <h1>Jordan</h1>
+                            <h1>Jordan- I like computers</h1>
                         </div>
                     </div>
                 
@@ -194,10 +207,12 @@ export default {
                     <div class="grid-x grid-padding-x">
                         <p :class="'cell small-4 ' + ((viewSub === 'Tools') ? 'selected' : 'unselected')" @click="viewTools">Tools Used</p>
                         <p :class="'cell small-4 ' + ((viewSub === 'Interesting') ? 'selected' : 'unselected')" @click="viewInteresting">Interesting Facts</p>
-                        <p :class="'cell small-4  ' + ((viewSub === 'Video') ? 'selected' : 'unselected')" @click="viewVideo">Video</p>
+                        <p :class="'cell small-4 ' + ((viewSub === 'Video') ? 'selected' : 'unselected')" @click="viewVideo">Video</p>
                     </div>    
                         <div v-if="viewSub === 'Tools'">
-                            <h1 class="'cell auto'">Tools Used</h1>
+                            <center>
+                            <img src="./images/tools.jpg" alt="Tools" class="'cell auto'" style="width:1000px;height:300px;"> 
+                            </center>
                             <ol>
                                 <li>Vue</li>
                                 <li>Java Script</li>
@@ -209,6 +224,9 @@ export default {
                             </ol>
                         </div>
                         <div v-if="viewSub === 'Interesting'">
+                            <center>
+                            <img src="./images/facts.jpg" alt="Interesting Fact" class="'cell auto'" style="width:900px;height:300px;"> 
+                        </center>
                             <h1 class="cell auto">Interesting Facts</h1>
                             
                             <ol>
@@ -216,23 +234,35 @@ export default {
                             </ol>           
                                
                         </div>
-                        <div v-if="viewSub === 'Video'">
-                            <h1 class="cell auto">Video</h1>
+                        <div v-if="viewSub === 'Video'" background-color: lightblue>
+                            
+                            <h1 class="cell auto" style="text-align:center">Video Walkthrough of Our Project</h1>
+                            <div style="text-align:center"> 
+                            
+                                <iframe id="video1" width="916" height="515" src="https://www.youtube.com/embed/nytpYtLtHpE" title="You’re a Mean One, Mr. Grinch" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+
+                                </iframe>
+                                
+                          
+                            </div> 
+                            
                         </div>
                     
                 </div>
             </div>
         </div>
 
-   
+
  
 </template>
 
 <style>
+
+
+
 #leafletmap {
     height: 500px;
 }
-
 .selected {
     background-color: rgb(10, 100, 126);
     color: white;
