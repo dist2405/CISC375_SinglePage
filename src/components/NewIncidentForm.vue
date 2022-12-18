@@ -153,6 +153,15 @@ input[type="checkbox"] {
   top: 1px;
 }
 
+button {
+  background: white;
+  border: 0;
+  padding: 10px 20px;
+  margin-top: 20px;
+  color: rgb(90, 116, 185);
+  border-radius: 20px;
+}
+
 .send {
   text-align: center;
 }
