@@ -4,10 +4,12 @@ let path = require("path");
 
 // NPM modules
 let express = require("express");
+let axios = require("axios");
 let sqlite3 = require("sqlite3");
 let cors = require("cors");
 const { parseArgs } = require("util");
 let db_filename = path.join(__dirname, "db", "stpaul_crime.sqlite3");
+let public_dir = path.join(__dirname, "public");
 
 let app = express();
 let port = 8000;
@@ -24,6 +26,23 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
   } else {
     console.log("Now connected to " + path.basename(db_filename));
   }
+});
+
+app.use(express.static(public_dir));
+// GET request handler for home page '/'
+app.get("/", (req, res) => {
+  res.redirect("/home");
+});
+
+app.get("/home", (req, res) => {
+  console.log("home");
+  fs.readFile(path.join(public_dir, "index.html"), "utf-8", (err, page) => {
+    if (err) {
+      res.status(404).send("Error: File Not Found");
+    } else {
+      res.status(200).type("html").send(page);
+    }
+  });
 });
 
 // GET request handler for crime codes
@@ -56,122 +75,136 @@ app.get("/codes", (req, res) => {
 
 // GET request handler for neighborhoods
 app.get("/neighborhoods", (req, res) => {
-  SQLquery =
-    "SELECT neighborhood_number AS id, neighborhood_name as name FROM neighborhoods ";
-  console.log(req.query); // query object (key-value pairs after the ? in the url)
-  //need if statement for certain codes
+  let query = req.query;
+  let sql = "SELECT * FROM Neighborhoods";
   let params = [];
-  clause = "WHERE";
-  if (req.query.hasOwnProperty("id")) {
-    let codearray = req.query.id.split(",");
-    SQLquery = SQLquery + clause + " neighborhood_number IN ( ?";
-    //loops through multiple codes
-    let i;
-    let between = "";
-    for (i = 0; i < codearray.length; i++) {
-      params.push(parseInt(codearray[i]));
-      SQLquery = SQLquery + between;
-      between = ",? ";
+
+  if ("id" in query) {
+    sql += " WHERE neighborhood_number = ?";
+    params = query.id.split(",");
+    for (let i = 1; i < params.length; i++) {
+      sql += " OR neighborhood_number = ?";
     }
-    console.log(SQLquery);
-    SQLquery = SQLquery + ")";
-    clause = "AND";
   }
-  SQLquery = SQLquery + " ORDER BY neighborhood_number ";
-  db.all(SQLquery, params, (err, rows) => {
-    console.log(err);
-    res.status(200).type("json").send(rows);
+
+  databaseSelect(sql, params).then((data) => {
+    res.status(200).type("json").send(data);
   });
 });
 
 // GET request handler for crime incidents
 app.get("/incidents", (req, res) => {
-  SQLquery =
-    "SELECT case_number, date(date_time) AS date,time(date_time) as time,code, incident, police_grid, neighborhood_number, block FROM Incidents";
   console.log(req.query); // query object (key-value pairs after the ? in the url)
-  let RowCount = 1000;
-  //need if statement for start/end dates/code/grid/ neighbothood
-  let params = [];
-  clause = " WHERE ";
-  if (req.query.hasOwnProperty("start_date")) {
-    SQLquery = SQLquery + clause + " date >= ?";
-    params.push(req.query.start_date);
-    clause = "AND";
-    console.log(SQLquery);
-  }
-  if (req.query.hasOwnProperty("end_date")) {
-    SQLquery = SQLquery + clause + " date <=?";
-    params.push(req.query.end_date);
-    clause = "AND";
-    console.log(SQLquery);
-  }
-  if (req.query.hasOwnProperty("code")) {
-    let codearray = req.query.code.split(",");
-    SQLquery = SQLquery + clause + " code IN ( ?";
-    //loops through multiple codes
-    let i;
-    let between = "";
-    for (i = 0; i < codearray.length; i++) {
-      params.push(parseInt(codearray[i]));
-      SQLquery = SQLquery + between;
-      between = ",? ";
+  let p, q;
+  p = [];
+  let query = req.query;
+  let second = false;
+  console.log(query);
+
+  // Initialize the query string with a SELECT statement
+  q = "SELECT * FROM Incidents";
+
+  // Add a WHERE clause for the code parameter, if it exists
+  if ("code" in query) {
+    if (second) {
+      q += " AND";
+    } else {
+      q += " WHERE";
+      second = true;
     }
-    console.log(SQLquery);
-    SQLquery = SQLquery + ")";
-    clause = "AND";
-  }
-  if (req.query.hasOwnProperty("grid")) {
-    let codearray = req.query.grid.split(",");
-    SQLquery = SQLquery + clause + " police_grid IN ( ?";
-    //loops through multiple codes
-    let i;
-    let between = "";
-    for (i = 0; i < codearray.length; i++) {
-      params.push(parseInt(codearray[i]));
-      SQLquery = SQLquery + between;
-      between = ",? ";
+    let t = query.code.split(",");
+    t.forEach((element) => p.push(element));
+    q += " (code = ?";
+    for (let i = 1; i < t.length; i++) {
+      q += " OR code = ?";
     }
-    console.log(SQLquery);
-    SQLquery = SQLquery + ")";
-    clause = "AND";
-  }
-  if (req.query.hasOwnProperty("id")) {
-    let codearray = req.query.id.split(",");
-    SQLquery = SQLquery + clause + " neighborhood_number IN ( ?";
-    //loops through multiple codes
-    let i;
-    let between = "";
-    for (i = 0; i < codearray.length; i++) {
-      params.push(parseInt(codearray[i]));
-      SQLquery = SQLquery + between;
-      between = ",? ";
-    }
-    console.log(SQLquery);
-    SQLquery = SQLquery + ")";
-    clause = "AND";
+    q += ")";
   }
 
-  SQLquery = SQLquery + " ORDER BY date_time DESC ";
-  //need if statement here for limit
-  if (req.query.hasOwnProperty("limit")) {
-    SQLquery = SQLquery + "LIMIT ?";
-    params.push(req.query.limit);
-    console.log(SQLquery);
+  // Add a WHERE clause for the neighborhood parameter, if it exists
+  if ("neighborhood" in query) {
+    if (second) {
+      q += " AND";
+    } else {
+      q += " WHERE";
+      second = true;
+    }
+    let t = query.neighborhood.split(",");
+    t.forEach((element) => p.push(element));
+    q += " (neighborhood_number = ?";
+    for (let i = 1; i < t.length; i++) {
+      q += " OR neighborhood_number = ?";
+    }
+    q += ")";
   }
 
-  if (!req.query.hasOwnProperty("limit")) {
-    SQLquery = SQLquery + "LIMIT 1000";
-    params.push(req.query.limit);
-    console.log(SQLquery);
+  // Add a WHERE clause for the grid parameter, if it exists
+  if ("grid" in query) {
+    if (second) {
+      q += " AND";
+    } else {
+      q += " WHERE";
+      second = true;
+    }
+    let t = query.grid.split(",");
+    t.forEach((element) => p.push(element));
+    q += " (police_grid = ?";
+    for (let i = 1; i < t.length; i++) {
+      q += " OR police_grid = ?";
+    }
+    q += ")";
   }
 
-  db.all(SQLquery, params, (err, rows) => {
-    console.log(err);
-    res.status(200).type("json").send(rows);
+  // Add a WHERE clause for the start_date parameter, if it exists
+  if ("start_date" in query) {
+    if (second) {
+      q += " AND";
+    } else {
+      q += " WHERE";
+      second = true;
+    }
+    let t = query.start_date;
+    p.push(t);
+    q += " date(date_time) >= ?";
+  }
+
+  // Add a WHERE clause for the end_date parameter, if it exists
+  if ("end_date" in query) {
+    if (second) {
+      q += " AND";
+    } else {
+      q += " WHERE";
+      second = true;
+    }
+    let t = query.end_date;
+    p.push(t);
+    q += " date(date_time) <= ?";
+  }
+
+  // Add an ORDER BY clause to the query
+  q += " ORDER BY date_time DESC";
+
+  // Add a LIMIT clause to the query, using the limit parameter if it exists, or a default value of 1000
+  if ("limit" in query) {
+    q += " LIMIT ?";
+    p.push(query.limit);
+  } else {
+    q += " LIMIT 1000";
+  }
+
+  // Execute the query and handle the response
+  databaseSelect(q, p).then((data) => {
+    // Split the date_time field into separate date and time fields, then delete the date_time field
+    data.forEach((element) => {
+      date_time = element.date_time.split("T");
+      element.date = date_time[0];
+      element.time = date_time[1];
+      delete element.date_time;
+    });
+    res.status(200).type("json").send(data);
   });
 });
 
-//let SQLcheck = "";
 // PUT request handler for new crime incident
 app.put("/new-incident", (req, res) => {
   console.log(req.body); // uploaded data
@@ -207,7 +240,6 @@ app.put("/new-incident", (req, res) => {
     params.push(neighborhood_number);
     params.push(block);
 
-    let check = "SELECT case_number FROM Incidents WHERE case_number = ?"; //first we should check if this is null
     let query =
       "INSERT INTO Incidents (case_number, date_time, code, incident,police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -223,82 +255,7 @@ app.put("/new-incident", (req, res) => {
         res.status(200).type("txt").send("Added case number.");
       }
     });
-
-    /*
-    db.all(check, case_number, (err, rows) => {
-      if (rows.length === 1) {
-        res.status(500).type("txt").send("Case number found already.");
-      } else {
-        db.run(query, params, (err, res2) => {
-          res.status(200).type("txt").send("Added case number.");
-        });
-      }
-    });
-    */
   }
-
-  //then insert the new values
-
-  /*
-  SQLquery =
-    "INSERT INTO Incidents (case_number,date, code, incident,police_grid, neighborhood_number,block) VALUES (";
-  let between = "";
-  params = [];
-  count = 0;
-  if (req.body.hasOwnProperty("case_number")) {
-    SQLquery = SQLquery + "? ";
-    params.push(req.body.case_number);
-    count = count + 1;
-  }
-  if (req.body.hasOwnProperty("date")) {
-    SQLquery = SQLquery + ",? ";
-    let date = req.body.date;
-    params.push(date);
-    count = count + 1;
-  }
-  if (req.body.hasOwnProperty("code")) {
-    SQLquery = SQLquery + ",? ";
-    params.push(req.body.code);
-    count = count + 1;
-  }
-  if (req.body.hasOwnProperty("incident")) {
-    SQLquery = SQLquery + ",? ";
-    params.push(req.body.incident);
-    count = count + 1;
-  }
-  if (req.body.hasOwnProperty("police_grid")) {
-    SQLquery = SQLquery + ",? ";
-    params.push(req.body.police_grid);
-    count = count + 1;
-  }
-  if (req.body.hasOwnProperty("neighborhood_number")) {
-    SQLquery = SQLquery + ",? ";
-    params.push(req.body.neighborhood_number);
-    count = count + 1;
-  }
-  if (req.body.hasOwnProperty("block")) {
-    SQLquery = SQLquery + ",? ";
-    params.push(req.body.block);
-    count = count + 1;
-  }
-  SQLquery = SQLquery + ")";
-  if (count == 7) {
-    //all values are in there and can proceed
-    db.all(SQLcheck, req.body.case_number, (err, rows) => {
-      if (rows.length === 1) {
-        res.status(500).type("txt").send("Case number found already.");
-      } else {
-        db.run(SQLquery, params, (err, res2) => {
-          res.status(200).type("txt").send("Added case number.");
-        });
-      }
-    });
-  } else {
-    res
-      .status(500)
-      .type("txt")
-      .send("Missing parameters, must have 7 in total.");
-  }*/
 });
 
 // DELETE request handler for new crime incident
@@ -321,6 +278,39 @@ app.delete("/remove-incident", (req, res) => {
       });
     }
   });
+});
+
+app.get("/nominatim", (req, res) => {
+  // Make a GET request to the Nominatim API to convert the location to latitude and longitude coordinates
+  axios
+    .get("https://nominatim.openstreetmap.org/search", {
+      params: {
+        q: req.query.location,
+        format: "json",
+      },
+    })
+    .then((response) => {
+      // Check if the API returned any results
+      if (response.data.length > 0) {
+        // Extract the latitude and longitude coordinates from the API response
+        const lat = response.data[0].lat;
+        const lng = response.data[0].lon;
+
+        // Return the coordinates in the response
+        res.send({
+          lat: lat,
+          lng: lng,
+        });
+      } else {
+        // Return an error if no results were returned
+        res.status(400).send({
+          error: "No results found",
+        });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
 // Create Promise for SQLite3 database SELECT query
