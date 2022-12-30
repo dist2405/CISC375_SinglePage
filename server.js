@@ -29,7 +29,7 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 });
 
 app.use(express.static(public_dir));
-// GET request handler for home page '/'
+// GET request handler for home page
 app.get("/", (req, res) => {
   res.redirect("/home");
 });
